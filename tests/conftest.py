@@ -1,4 +1,5 @@
-from typing import List
+import json
+from typing import Dict, List
 
 import pytest
 
@@ -29,3 +30,14 @@ def pipeline_config() -> List[FacetConfig]:
             required=False,
         ),
     ]
+
+
+@pytest.fixture(scope="session")
+def conversations() -> List[Dict]:
+    with open(
+        "tests/data/hyperdrive_solutions_inc_conversations.json",
+        mode="r",
+        encoding="utf-8",
+    ) as f:
+        data = json.load(f)
+    return data
