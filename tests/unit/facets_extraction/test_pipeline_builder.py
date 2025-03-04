@@ -1,34 +1,33 @@
-from datetime import date, datetime
+from datetime import date
 from typing import Optional
 
+from pydantic import BaseModel
+from sklearn.compose import ColumnTransformer
 
-def test_build_mixed_encoder(pipeline_config):
-    from sklearn.compose import ColumnTransformer
+from clio.facets_extraction.pipeline_builder import (
+    build_Facets_BaseModel,
+    build_mixed_encoder,
+)
 
-    from clio.facets_extraction.pipeline_builder import build_mixed_encoder
 
-    encoder = build_mixed_encoder(pipeline_config)
+def test_build_mixed_encoder(facets_config):
+    encoder = build_mixed_encoder(facets_config)
     assert isinstance(encoder, ColumnTransformer)
-    assert len(encoder.transformers) == 5
+    assert len(encoder.transformers) == 4
     assert all(
         [
             encoder.transformers[i][0] == value
             for i, value in enumerate(
-                ["short_summary", "message_count", "language", "date", "datetime"]
+                ["short_summary", "message_count", "language", "date"]
             )
         ]
     )
 
 
-def test_build_Facets_BaseModel(pipeline_config):
-    from pydantic import BaseModel
-
-    from clio.facets_extraction.pipeline_builder import build_Facets_BaseModel
-
-    Facets = build_Facets_BaseModel(pipeline_config)
-    print(Facets.model_fields)
+def test_build_Facets_BaseModel(facets_config):
+    Facets = build_Facets_BaseModel(facets_config)
     assert issubclass(Facets, BaseModel)
-    assert len(Facets.model_fields) == 5
+    assert len(Facets.model_fields) == 4
     assert all(
         [
             field_name in Facets.model_fields
@@ -37,7 +36,6 @@ def test_build_Facets_BaseModel(pipeline_config):
                 "message_count",
                 "language",
                 "date",
-                "datetime",
             ]
         ]
     )
@@ -48,9 +46,22 @@ def test_build_Facets_BaseModel(pipeline_config):
     assert Facets.model_fields["message_count"].description == "Amount of messages"
     assert Facets.model_fields["language"].description == "Language of the document"
     assert Facets.model_fields["date"].description == "Date of the document"
-    assert Facets.model_fields["datetime"].description == "Datetime of the document"
     assert Facets.model_fields["short_summary"].annotation is str
     assert Facets.model_fields["message_count"].annotation is float
     assert Facets.model_fields["language"].annotation is str
     assert Facets.model_fields["date"].annotation is Optional[date]
-    assert Facets.model_fields["datetime"].annotation is Optional[datetime]
+
+
+def test_Facets_serialisability(facets_config):
+    Facets = build_Facets_BaseModel(facets_config)
+    today = date.today()
+    facets = Facets(
+        short_summary="A short summary",
+        message_count=4,
+        language="en",
+        date=today,
+    )
+    assert (
+        facets.model_dump_json()
+        == f"""{{"short_summary":"A short summary","message_count":4.0,"language":"en","date":"{today}"}}"""
+    )

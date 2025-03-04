@@ -1,0 +1,12 @@
+facets:
+  - 
+    name: "title"
+    description: "A few words title of the document"
+    type: "default_free_text"
+  - 
+    name: "description"
+    description: "Short description of the document"
+    type: "default_free_text"
+facets_extraction_agent:
+  model_name: "openai:gpt-4o"
+  system_prompt_path: "configs/prompts/facet_extraction_system_prompt.txt"

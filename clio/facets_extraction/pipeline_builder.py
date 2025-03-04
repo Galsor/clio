@@ -26,7 +26,7 @@ def build_mixed_encoder(config: List[FacetConfig]) -> ColumnTransformer:
     """Dynamically build a pipeline from the given configuration."""
     return ColumnTransformer(
         [
-            (facet_config.name, facet_config.vectorizer, [facet_config.name])
+            (facet_config.name, facet_config.encoder, [facet_config.name])
             for facet_config in config
         ]
     )

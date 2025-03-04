@@ -1,0 +1,24 @@
+facets:
+  - 
+    name: "title"
+    description: "A few words title of the document"
+    type: "default_free_text"
+    required: true
+  - 
+    name: "description"
+    description: "Short description of the document"
+    type: "default_free_text"
+  - 
+    name: "spaceship"
+    description: "The Spaceship refered in the document"
+    type: "default_categorical"
+    required: false
+  - 
+    name: "date"
+    description: "The date of the event refered in the document"
+    type: "default_date"
+    required: false
+  
+facets_extraction_agent:
+  model_name: "gpt-4o-mini"
+  system_prompt_path: "configs/prompts/facet_extraction_system_prompt.txt"

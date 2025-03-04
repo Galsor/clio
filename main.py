@@ -1,22 +1,17 @@
-from clio.facets_extraction.pipeline_builder import (
-    build_Facets_BaseModel,
+import logging
+
+from clio.utils import DATE_FORMAT, LOG_FORMAT
+
+logging.basicConfig(
+    level=logging.INFO,
+    format=LOG_FORMAT,
+    datefmt=DATE_FORMAT,
 )
-from clio.schemas.facet import CategoricalFacet, DateFacet, FreeTextFacet
+logger = logging.getLogger(__name__)
 
 
 def run_clio():
-    print("Hello from Clio!")
-    pipeline_config = [
-        FreeTextFacet(
-            name="short_summary", description="Short summary of the document"
-        ),
-        FreeTextFacet(name="description", description="Description of the document"),
-        CategoricalFacet(name="language", description="Language of the document"),
-        DateFacet(name="date", description="Date of the document"),
-    ]
-    # encoder = build_mixed_encoder(pipeline_config)
-    Facets = build_Facets_BaseModel(pipeline_config)
-    print(Facets.model_json_schema())
+    logger.info("No Clio pipeline define. Please implement one in main.py")
 
 
 if __name__ == "__main__":

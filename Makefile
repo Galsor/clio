@@ -25,7 +25,7 @@ lint: ## Lint the code
 
 .PHONY: test
 test: ## Run tests and collect coverage data
-	uv run coverage run -m pytest
+	uv run coverage run -m pytest tests
 	@uv run coverage report
 
 .PHONY: test-all-python
@@ -42,6 +42,11 @@ test-all-python: ## Run tests on Python 3.9 to 3.13
 testcov: test ## Run tests and generate a coverage report
 	@echo "building coverage html"
 	@uv run coverage html
+
+.PHONY: eval
+eval: ## Evaluate the code
+	@echo "Running agents evaluations"
+	@uv run python evaluate.py
 
 # `--no-strict` so you can build the docs without insiders packages
 .PHONY: docs

@@ -1,73 +1,44 @@
-from datetime import date, datetime
-from typing import Any, Optional, Type
+from typing import Optional, Type
 
 from pydantic import BaseModel, ConfigDict, computed_field, field_validator
-from sklearn.base import TransformerMixin
-from sklearn.preprocessing import StandardScaler
-from skrub import DatetimeEncoder, GapEncoder, TextEncoder
 
+from clio.facets_extraction.facets import AVAILABLE_FACET_TYPES
 
 class FacetConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     name: str
-    extracted_type: Type[Any]
     description: str
-    vectorizer: TransformerMixin
+    type: str
     pydantic_field_kwargs: dict = {}
     required: bool = True
 
-    @field_validator("extracted_type", mode="before")
+    @field_validator("type", mode="before")
     @classmethod
-    def validate_type(cls, value):
-        if isinstance(value, type) and value.__module__ == "builtins":
-            return value
-        if isinstance(value, type) and issubclass(value, BaseModel):
+    def validate_facet_type(cls, value):
+        if value in AVAILABLE_FACET_TYPES:
             return value
         raise ValueError(
-            f"Invalid type: {value}. Must be a built-in type or a Pydantic BaseModel subclass."
+            f"Invalid facet type: {value}. Must be one of {list(AVAILABLE_FACET_TYPES.keys())}"
         )
 
-    @field_validator("vectorizer", mode="before")
+    @field_validator("pydantic_field_kwargs", mode="before")
     @classmethod
-    def validate_vectorizer(cls, value):
-        if not isinstance(value, TransformerMixin):
-            raise ValueError(
-                "Invalid vectorizer: {value}. Must be an instance of TransformerMixin"
-            )
-        return value
+    def validate_pydantic_field_kwargs(cls, value):
+        if isinstance(value, dict):
+            return value
+        raise ValueError(
+            f"Invalid pydantic_field_kwargs: {value}. Must be a dictionary not {type(value)}"
+        )
 
     @computed_field
     @property
-    def annotation_to_extract(self) -> type:
+    def encoder(self) -> Type:
+        return AVAILABLE_FACET_TYPES[self.type].encoder
+
+    @computed_field
+    @property
+    def annotation_to_extract(self) -> Type:
+        extracted_type = AVAILABLE_FACET_TYPES[self.type].extracted_type
         if not self.required:
-            return Optional[self.extracted_type]
-        return self.extracted_type
-
-
-class FreeTextFacet(FacetConfig):
-    extracted_type: Type[str] = str
-    vectorizer: TransformerMixin = TextEncoder()
-
-
-class CategoricalFacet(FacetConfig):
-    extracted_type: Type[str] = str
-    vectorizer: TransformerMixin = GapEncoder()
-
-
-class NumericalFacet(FacetConfig):
-    extracted_type: Type[float] = float
-    vectorizer: TransformerMixin = StandardScaler()
-
-
-class DateFacet(FacetConfig):
-    extracted_type: Type[date] = date
-    vectorizer: TransformerMixin = DatetimeEncoder(
-        resolution="day", add_total_seconds=False, add_weekday=True
-    )
-
-
-class DateTimeFacet(FacetConfig):
-    extracted_type: Type[datetime] = datetime
-    vectorizer: TransformerMixin = DatetimeEncoder(
-        resolution="second", add_total_seconds=False
-    )
+            return Optional[extracted_type]
+        return extracted_type
