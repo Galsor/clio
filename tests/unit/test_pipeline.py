@@ -3,12 +3,13 @@ from typing import Optional
 
 from pydantic import BaseModel
 from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from skrub import DatetimeEncoder, GapEncoder, TextEncoder
 
 from clio.config import build_Facets_BaseModel
-from clio.clio.pipeline import (
-    build_mixed_encoder,
+from clio.pipeline import (
+    build_mixed_encoder, build_clio_pipeline
 )
 
 
@@ -75,3 +76,9 @@ def test_Facets_serialisability(mock_ClioConfig):
         facets.model_dump_json()
         == f"""{{"short_summary":"A short summary","message_count":4.0,"language":"en","date":"{today}"}}"""
     )
+
+def test_build_clio_pipeline(mock_ClioConfig):
+    pipeline = build_clio_pipeline(mock_ClioConfig)
+    assert isinstance(pipeline, Pipeline)
+
+
