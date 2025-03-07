@@ -6,8 +6,7 @@ from typing import List
 from pydantic_ai import Agent
 from sklearn.base import TransformerMixin
 
-from clio.config import ClioConfig
-from clio.facets_extraction.pipeline_builder import build_Facets_BaseModel
+from clio.config import ClioConfig, build_Facets_BaseModel
 from clio.utils import generate_short_id
 
 logger = logging.getLogger(__name__)
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 def setup_facet_extraction_agent(config: ClioConfig) -> Agent:
     agent_config = config.facets_extraction_agent
-    facets_model = build_Facets_BaseModel(config.facets)
+    facets_model = build_Facets_BaseModel(config)
     agent = Agent(
         agent_config.model_name,
         system_prompt=agent_config.system_prompt,

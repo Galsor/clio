@@ -3,7 +3,8 @@ from pathlib import Path
 from typing import List
 
 import yaml
-from pydantic import BaseModel, FilePath, computed_field
+from pydantic import BaseModel, FilePath, computed_field, Field, create_model
+
 
 from clio.schemas.facet import FacetConfig
 
@@ -24,6 +25,20 @@ class ClioConfig(BaseModel):
     facets_extraction_agent: AgentConfig
     facets: List[FacetConfig]
 
+def build_Facets_BaseModel(config: ClioConfig) -> BaseModel:
+    return create_model(
+        "Facets",
+        **{
+            facet_config.name: (
+                facet_config.annotation_to_extract,
+                Field(
+                    description=facet_config.description,
+                    **facet_config.pydantic_field_kwargs,
+                ),
+            )
+            for facet_config in config.facets
+        },
+    )
 
 def load_config(config_dir: os.PathLike = "configs/config.yml") -> ClioConfig:
     """Open all yaml files in the config directory and return a dictionary with the contents."""

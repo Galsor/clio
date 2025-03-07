@@ -3,15 +3,17 @@ from typing import Optional
 
 from pydantic import BaseModel
 from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import StandardScaler
+from skrub import DatetimeEncoder, GapEncoder, TextEncoder
 
-from clio.facets_extraction.pipeline_builder import (
-    build_Facets_BaseModel,
+from clio.config import build_Facets_BaseModel
+from clio.clio.pipeline import (
     build_mixed_encoder,
 )
 
 
-def test_build_mixed_encoder(facets_config):
-    encoder = build_mixed_encoder(facets_config)
+def test_build_mixed_encoder(mock_ClioConfig):
+    encoder = build_mixed_encoder(mock_ClioConfig)
     assert isinstance(encoder, ColumnTransformer)
     assert len(encoder.transformers) == 4
     assert all(
@@ -22,10 +24,18 @@ def test_build_mixed_encoder(facets_config):
             )
         ]
     )
+    assert all(
+        [
+            isinstance(encoder.transformers[i][1], cls)
+            for i, cls in enumerate(
+                [TextEncoder, StandardScaler, GapEncoder, DatetimeEncoder]
+            )
+        ]
+    )
 
 
-def test_build_Facets_BaseModel(facets_config):
-    Facets = build_Facets_BaseModel(facets_config)
+def test_build_Facets_BaseModel(mock_ClioConfig):
+    Facets = build_Facets_BaseModel(mock_ClioConfig)
     assert issubclass(Facets, BaseModel)
     assert len(Facets.model_fields) == 4
     assert all(
@@ -52,8 +62,8 @@ def test_build_Facets_BaseModel(facets_config):
     assert Facets.model_fields["date"].annotation is Optional[date]
 
 
-def test_Facets_serialisability(facets_config):
-    Facets = build_Facets_BaseModel(facets_config)
+def test_Facets_serialisability(mock_ClioConfig):
+    Facets = build_Facets_BaseModel(mock_ClioConfig)
     today = date.today()
     facets = Facets(
         short_summary="A short summary",

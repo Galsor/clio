@@ -9,7 +9,6 @@ from skrub import DatetimeEncoder, GapEncoder, TextEncoder
 # Facet types registry
 AVAILABLE_FACET_TYPES = {}
 
-
 @dataclass
 class FacetType:
     name: str
