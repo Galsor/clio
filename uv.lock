@@ -271,6 +271,7 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "scikit-learn" },
     { name = "sentence-transformers" },
+    { name = "skrub" },
 ]
 
 [package.optional-dependencies]
@@ -296,6 +297,7 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "sentence-transformers", specifier = ">=3.4.1" },
+    { name = "skrub", specifier = ">=0.5.1" },
     { name = "skrub", marker = "extra == 'transformers'", specifier = ">=0.5.1" },
 ]
 provides-extras = ["transformers"]
